@@ -16,6 +16,8 @@ global SCORE, NEXT_LETTER, LIVES
 
 # Link para generar audio en mp3 (parametro q="texto"):
 # https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=es&q=
+# Link para trabajar con audios:
+# https://pythonprogramming.net/adding-sounds-music-pygame/
 
 class Game:
     def __init__(self):
