@@ -11,9 +11,9 @@ class Letter(Sprite):
     def __init__(self, ):
         super(Letter, self).__init__()
         self.key = random.choice(list(LETTERS_UPPER))
-        self.surface = pygame.image.load(LETTERS_UPPER[self.key]).convert_alpha()
-        self.surface = scale_image(self.surface, 70)
-        self.rect = self.surface.get_rect(
+        self.image = pygame.image.load(LETTERS_UPPER[self.key]).convert_alpha()
+        self.image = scale_image(self.image, 70)
+        self.rect = self.image.get_rect(
             center=(
                 random.randint(WIDTH + 20, WIDTH + 200),
                 random.randint(150, HEIGHT - 50),

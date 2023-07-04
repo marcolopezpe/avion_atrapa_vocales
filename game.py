@@ -1,3 +1,4 @@
+import os
 import random
 
 import pygame
@@ -13,9 +14,27 @@ from utils.helpers import scale_image
 global SCORE, NEXT_LETTER, LIVES
 
 
+# Link para generar audio en mp3 (parametro q="texto"):
+# https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=es&q=
+
 class Game:
     def __init__(self):
         global SCORE, NEXT_LETTER, LIVES
+
+        pygame.mixer.pre_init(44100, -16, 2, 2048)
+        pygame.mixer.init()
+        pygame.mixer.music.load(os.path.join("assets/sounds", "8bit-game-music-sound.ogg"))
+        pygame.mixer.music.play(loops=-1)
+        self.plane_sound = pygame.mixer.Sound(os.path.join("assets/sounds", "plane-sound.ogg"))
+        self.search_letter_a_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-a.mp3"))
+        self.search_letter_e_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-e.mp3"))
+        self.search_letter_i_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-i.mp3"))
+        self.search_letter_o_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-o.mp3"))
+        self.search_letter_u_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-u.mp3"))
+        self.success_sound = pygame.mixer.Sound(os.path.join("assets/sounds", "success-sound.mp3"))
+        self.error_sound = pygame.mixer.Sound(os.path.join("assets/sounds", "error-sound.mp3"))
+        self.game_start_sound = pygame.mixer.Sound(os.path.join("assets/sounds", "game-start-sound.mp3"))
+
         pygame.init()
         pygame.display.set_caption(TITLE)
 
@@ -50,8 +69,8 @@ class Game:
         pygame.time.set_timer(self.ADDLETTER, 2000)
 
         SCORE = SCORE_INITIAL
-        NEXT_LETTER = random.choice(list(LETTERS_UPPER))
         LIVES = LIVES_INITIAL
+        NEXT_LETTER = random.choice(list(LETTERS_UPPER))
 
         while self.replay:
             self.replay = False
@@ -69,6 +88,18 @@ class Game:
                 self.gameover = True
 
         pygame.quit()
+
+    def play_audio_letter(self, letter):
+        if letter == "A":
+            self.search_letter_a_sound.play()
+        elif letter == "E":
+            self.search_letter_e_sound.play()
+        elif letter == "I":
+            self.search_letter_i_sound.play()
+        elif letter == "O":
+            self.search_letter_o_sound.play()
+        elif letter == "U":
+            self.search_letter_u_sound.play()
 
     def draw_bg_image(self):
         self.screen.blit(self.bg, (0 - self.bg_scroll, 0))
@@ -142,10 +173,15 @@ class Game:
 
     def play_button_click(self):
         self.intro = False
+        self.game_start_sound.play()
 
     def game_play(self):
         global SCORE, NEXT_LETTER, LIVES
+        self.play_audio_letter(NEXT_LETTER)
+
         plane = Plane()
+        self.plane_sound.play(loops=-1)
+        self.plane_sound.set_volume(0.2)
 
         letters = pygame.sprite.Group()
         all_sprites = pygame.sprite.Group()
@@ -170,14 +206,17 @@ class Game:
             self.draw_bg_image()
 
             for entity in all_sprites:
-                self.screen.blit(entity.surface, entity.rect)
+                self.screen.blit(entity.image, entity.rect)
 
             for le in letters:
-                if pygame.sprite.collide_rect(plane, le):
+                if pygame.sprite.spritecollide(plane, letters, False, pygame.sprite.collide_mask):
                     if le.key == NEXT_LETTER:
+                        self.success_sound.play()
                         SCORE += 1
                         NEXT_LETTER = random.choice(list(LETTERS_UPPER))
+                        self.play_audio_letter(NEXT_LETTER)
                     else:
+                        self.error_sound.play()
                         LIVES -= 1
                         if LIVES == 0:
                             self.play = False
@@ -194,6 +233,7 @@ class Game:
         buttons = pygame.sprite.Group()
         restart_button = Button(500, 300, 'assets/images/restart-button.png', self.restart_button_click)
         buttons.add(restart_button)
+        self.plane_sound.stop()
 
         while self.gameover:
             for event in pygame.event.get():
