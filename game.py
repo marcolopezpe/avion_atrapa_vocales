@@ -27,6 +27,7 @@ class Game:
         pygame.mixer.init()
         pygame.mixer.music.load(os.path.join("assets/sounds", "8bit-game-music-sound.ogg"))
         pygame.mixer.music.play(loops=-1)
+        pygame.mixer.music.set_volume(0.0)
         self.plane_sound = pygame.mixer.Sound(os.path.join("assets/sounds", "plane-sound.ogg"))
         self.search_letter_a_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-a.mp3"))
         self.search_letter_e_sound = pygame.mixer.Sound(os.path.join("assets/audio", "audio-buscar-la-letra-e.mp3"))
